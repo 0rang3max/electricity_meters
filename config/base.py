@@ -1,0 +1,5 @@
+DB_NAME = 'electricity_meters'
+DB_USER = 'electricity_meters'
+DB_PASSWORD = 'changeme'
+DB_HOST = 'postgres'
+DB_PORT = '5432'

@@ -1,0 +1,28 @@
+{% extends 'app/base.html' %}
+
+{% block title %}Список счетчиков{% endblock %}
+
+{% block header %}Список счетчиков{% endblock %}
+
+{% block content %}
+<table class="table table-hover">
+    <thead>
+      <tr>
+        <th scope="col">Название</th>
+        <th scope="col">Ввод в эксплуатацию</th>
+        <th scope="col">Среднесуточное показание</th>
+        <th scope="col">Текущее показание (расчетное)</th>
+      </tr>
+    </thead>
+    <tbody>
+        {% for meter in electricity_meters %}
+        <tr>
+            <th><a href="/{{ meter.id }}">{{ meter.name }}</a></th>
+            <td>{{ meter.date_start|date:"d.m.Y" }}</td>
+            <td>{{ meter.avg_consumption }} Квт/Ч</td>
+            <td>{{ meter.current_value }} Квт/Ч</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
