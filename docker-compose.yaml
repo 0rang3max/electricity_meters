@@ -19,8 +19,6 @@ services:
 
   migrations:
     build: .
-    ports:
-      - '8080:8080'
     environment:
         - DB_NAME=electricity_meters
         - DB_USER=root
