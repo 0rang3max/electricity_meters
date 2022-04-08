@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, timedelta
 from decimal import Decimal
 from multiprocessing.dummy import current_process
 
@@ -13,14 +13,18 @@ class ElectricityMeter(models.Model):
         return self.name
     
     @property
+    def measurements_query(self):
+        return self.measurements.order_by('date')
+
+    @property
     def avg_consumption(self):
-        if not (last_measurement := self.measurements.last()):
+        if not (last_measurement := self.measurements_query.last()):
             return Decimal('0.00')
         return round(last_measurement.value / (last_measurement.date - self.date_start).days, 2)
 
     @property
     def current_value(self):
-        if not (last_measurement := self.measurements.last()):
+        if not (last_measurement := self.measurements_query.last()):
             return Decimal('0.00')
         if last_measurement.date == date.today():
             return last_measurement.value
@@ -30,9 +34,9 @@ class ElectricityMeter(models.Model):
     def graph_data(self):
         if not self.current_value:
             return
-
-        queryset = self.measurements.all().values_list('date__month', 'date__year').annotate(models.Avg('value'))
-
+        
+        queryset = self.measurements_query.values_list('date__month', 'date__year').annotate(models.Avg('value'))
+        
         return {
             'labels': [
                 f'{self.date_start.month}.{self.date_start.year}', 
