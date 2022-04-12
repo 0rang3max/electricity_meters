@@ -1,8 +1,7 @@
-from datetime import date, timedelta
+from datetime import date
 from decimal import Decimal
-from multiprocessing.dummy import current_process
-
 from django.db import models
+from django.contrib import admin
 
 
 class ElectricityMeter(models.Model):
@@ -47,6 +46,9 @@ class ElectricityMeter(models.Model):
             'avg_dataset': [0, *[None for _ in range(len(queryset))], self.current_value],
         }
 
+    class Meta:
+        verbose_name = 'счётчик'
+        verbose_name_plural = 'счётчики'
 
 
 class Measurement(models.Model):
@@ -55,9 +57,14 @@ class Measurement(models.Model):
         related_name='measurements',
         related_query_name='measurement',
         on_delete=models.CASCADE,
+        verbose_name='Счётчик'
     )
-    date = models.DateField(default=date.today, null=False)
-    value = models.DecimalField(max_digits=7, decimal_places=2, null=False)
+    date = models.DateField(default=date.today, null=False, verbose_name='Дата передачи показаний')
+    value = models.DecimalField(max_digits=7, decimal_places=2, null=False, verbose_name='КВт/Ч')
 
     def __str__(self) -> str:
         return f'{self.electricity_meter.name} {self.date}'
+
+    class Meta:
+        verbose_name = ' показание счётчика'
+        verbose_name_plural = 'показания счётчиков'

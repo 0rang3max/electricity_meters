@@ -3,30 +3,20 @@ version: '3'
 services:
   app:
     build: .
-    ports:
-      - '8080:8080'
     environment:
         - DB_NAME=electricity_meters
         - DB_USER=root
         - DB_PASSWORD=electricity_meters
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/ht"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     depends_on:
-      - migrations
       - postgres
-
-    command: ["gunicorn", "--bind", "localhost:8080", "app.wsgi"]
     volumes:
-      - ./:/opt
-
-  migrations:
-    build: .
-    environment:
-        - DB_NAME=electricity_meters
-        - DB_USER=root
-        - DB_PASSWORD=electricity_meters
-    depends_on:
-      postgres:
-        condition: service_healthy
-    command: ["python", "manage.py", "migrate", "--noinput"]
+      - static:/opt/static
+    command: ["sh", "entrypoint.sh"]
 
   postgres:
     image: postgres:10.5
@@ -34,8 +24,6 @@ services:
       - POSTGRES_DB=electricity_meters
       - POSTGRES_USER=root
       - POSTGRES_PASSWORD=electricity_meters
-    ports:
-      - '5432:5432'
     healthcheck:
       test: ["CMD-SHELL", "pg_isready"]
       interval: 10s
@@ -43,6 +31,16 @@ services:
       retries: 5
     volumes:
       - postgres_data:/var/lib/postgresql/data
-  
+
+  nginx:
+    build: ./nginx
+    volumes:
+      - static:/var/www/static
+    ports:
+      - 8080:80
+    depends_on:
+      - app
+
 volumes:
   postgres_data:
+  static:
